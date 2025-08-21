@@ -2,6 +2,7 @@ import json
 import random
 import schedule
 import time
+from datetime import datetime
 
 # Load puzzles from JSON
 with open("puzzles.json", "r") as f:
@@ -12,12 +13,15 @@ starting_rating = 100
 rating_step = 50
 rating_range = 50
 
-# Daily puzzle settings
+# Daily puzzle settings (will scale each day)
 daily_min_rating = 100
 daily_max_rating = 1000
+daily_scale_step = 50  # how much to increase per day
 
 current_rating = starting_rating
-daily_puzzle_cache = None  # Store the current daily puzzle
+daily_puzzle_cache = None
+last_day = None  # to track when a new day starts
+
 
 def get_puzzle_near_rating(target_rating, rating_range):
     filtered = [p for p in puzzles if target_rating - rating_range <= p["rating"] <= target_rating + rating_range]
@@ -25,11 +29,13 @@ def get_puzzle_near_rating(target_rating, rating_range):
         return None
     return random.choice(filtered)
 
+
 def get_random_puzzle(min_rating, max_rating):
     filtered = [p for p in puzzles if min_rating <= p["rating"] <= max_rating]
     if not filtered:
         return None
     return random.choice(filtered)
+
 
 def print_puzzle(puzzle):
     print("\n=== Puzzle ===")
@@ -37,13 +43,39 @@ def print_puzzle(puzzle):
     print(f"PGN: {puzzle['pgn']}")
     print(f"Estimated Rating: {puzzle['rating']}\n")
 
+
+def update_daily_scale():
+    """
+    Increase puzzle difficulty each day, reset on Monday.
+    """
+    global daily_min_rating, daily_max_rating, last_day
+
+    today = datetime.now().date()
+    weekday = datetime.now().weekday()  # 0 = Monday, 6 = Sunday
+
+    if last_day != today:
+        if weekday == 0:  # Reset every Monday
+            daily_min_rating = 100
+            daily_max_rating = 1000
+            print("\n[Reset] New week! Puzzle ratings reset.")
+        else:
+            # Increase difficulty gradually
+            daily_min_rating += daily_scale_step
+            daily_max_rating += daily_scale_step
+            print(f"\n[Scale Up] Puzzle rating range increased to {daily_min_rating}-{daily_max_rating}")
+
+        last_day = today
+
+
 def daily_puzzle():
     global daily_puzzle_cache
+    update_daily_scale()  # adjust rating scale first
     puzzle = get_random_puzzle(daily_min_rating, daily_max_rating)
     if puzzle:
         daily_puzzle_cache = puzzle
         print("=== Daily Puzzle ===")
         print_puzzle(puzzle)
+
 
 def main():
     global current_rating
@@ -80,9 +112,10 @@ def main():
         else:
             print("Invalid choice! Please try again.\n")
 
-        # Run scheduled jobs (daily puzzle)
+        # Run scheduled jobs (daily puzzle + scaling)
         schedule.run_pending()
         time.sleep(1)
+
 
 if __name__ == "__main__":
     main()
