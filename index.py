@@ -4,6 +4,13 @@ import schedule
 import time
 from datetime import datetime
 
+try:
+    import schedule
+except ImportError:
+    print("Installing required libraries from req.txt...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "req.txt"])
+    print("Installation complete!")
+
 # Load puzzles from JSON
 with open("puzzles.json", "r") as f:
     puzzles = json.load(f)
