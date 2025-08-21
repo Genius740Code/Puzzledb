@@ -1,27 +1,20 @@
 [
-    {
-        "fen": "r1bqkbnr/pppppppp/n7/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        "pgn": "1. Nf3 Nc6 2. d4 d5 3. Nc3 Bg4",
-        "rating": 100
-    },
-    {
-        "fen": "rnbqkb1r/pppppppp/5n2/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        "pgn": "1. e4 Nf6 2. Nc3 d5 3. exd5 Nxd5",
-        "rating": 120
-    },
-    {
-        "fen": "r1bqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        "pgn": "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6",
-        "rating": 170
-    },
-    {
-        "fen": "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1",
-        "pgn": "1. d4 d5 2. c4 c6 3. Nc3 Nf6",
-        "rating": 160
-    },
-    {
-        "fen": "rnbqkb1r/pppppppp/5n2/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        "pgn": "1. e4 Nf6 2. Nc3 d5 3. exd5 Nxd5",
-        "rating": 150
-    }
+  {
+    "fen": "r1bqkbnr/pppppppp/n7/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "pgn": "1. Nf3 Nc6 2. d4 d5 3. Nc3 Bg4",
+    "rating": 100,
+    "tags": ["opening", "knight", "m1"]
+  },
+  {
+    "fen": "rnbqkb1r/pppppppp/5n2/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "pgn": "1. e4 Nf6 2. Nc3 d5 3. exd5 Nxd5",
+    "rating": 120,
+    "tags": ["defense", "knight", "fork"]
+  },
+  {
+    "fen": "r1bqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "pgn": "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6",
+    "rating": 170,
+    "tags": ["opening", "bishop"]
+  }
 ]

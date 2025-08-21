@@ -29,16 +29,37 @@ current_rating = starting_rating
 daily_puzzle_cache = None
 last_day = None  # to track when a new day starts
 
+# Tag filters
+blacklist_tags = {"endgame"}     # exclude puzzles with these tags
+required_tags = set()            # only allow puzzles with these tags (if not empty)
+
+
+def filter_by_tags(puzzle):
+    tags = set(puzzle.get("tags", []))
+    if tags & blacklist_tags:
+        return False
+    if required_tags and not (tags & required_tags):
+        return False
+    return True
+
 
 def get_puzzle_near_rating(target_rating, rating_range):
-    filtered = [p for p in puzzles if target_rating - rating_range <= p["rating"] <= target_rating + rating_range]
+    filtered = [
+        p for p in puzzles
+        if target_rating - rating_range <= p["rating"] <= target_rating + rating_range
+        and filter_by_tags(p)
+    ]
     if not filtered:
         return None
     return random.choice(filtered)
 
 
 def get_random_puzzle(min_rating, max_rating):
-    filtered = [p for p in puzzles if min_rating <= p["rating"] <= max_rating]
+    filtered = [
+        p for p in puzzles
+        if min_rating <= p["rating"] <= max_rating
+        and filter_by_tags(p)
+    ]
     if not filtered:
         return None
     return random.choice(filtered)
@@ -48,7 +69,8 @@ def print_puzzle(puzzle):
     print("\n=== Puzzle ===")
     print(f"FEN: {puzzle['fen']}")
     print(f"PGN: {puzzle['pgn']}")
-    print(f"Estimated Rating: {puzzle['rating']}\n")
+    print(f"Estimated Rating: {puzzle['rating']}")
+    print(f"Tags: {', '.join(puzzle.get('tags', []))}\n")
 
 
 def update_daily_scale():
@@ -85,7 +107,8 @@ def daily_puzzle():
 
 
 def main():
-    global current_rating
+    global current_rating, required_tags, blacklist_tags
+
     # Schedule daily puzzle every 24 hours
     schedule.every(24).hours.do(daily_puzzle)
 
@@ -94,6 +117,8 @@ def main():
         print("1: Get a puzzle near current rating")
         print("2: Next puzzle (a bit harder)")
         print("3: Show today's daily puzzle")
+        print("4: Set required tags")
+        print("5: Set blacklist tags")
         print("0: Exit")
         choice = input("Enter choice: ")
 
@@ -101,11 +126,15 @@ def main():
             puzzle = get_puzzle_near_rating(current_rating, rating_range)
             if puzzle:
                 print_puzzle(puzzle)
+            else:
+                print("No puzzle found with current filters.\n")
         elif choice == "2":
             current_rating += rating_step
             puzzle = get_puzzle_near_rating(current_rating, rating_range)
             if puzzle:
                 print_puzzle(puzzle)
+            else:
+                print("No puzzle found with current filters.\n")
         elif choice == "3":
             if daily_puzzle_cache is None:
                 print("Daily puzzle not generated yet. Generating now...")
@@ -113,6 +142,14 @@ def main():
             else:
                 print("=== Daily Puzzle ===")
                 print_puzzle(daily_puzzle_cache)
+        elif choice == "4":
+            tags = input("Enter required tags (comma separated, empty to clear): ").strip()
+            required_tags = set([t.strip() for t in tags.split(",") if t.strip()]) if tags else set()
+            print(f"Required tags set to: {required_tags}")
+        elif choice == "5":
+            tags = input("Enter blacklist tags (comma separated, empty to clear): ").strip()
+            blacklist_tags = set([t.strip() for t in tags.split(",") if t.strip()]) if tags else set()
+            print(f"Blacklist tags set to: {blacklist_tags}")
         elif choice == "0":
             print("Exiting...")
             break
