@@ -33,6 +33,10 @@ last_day = None  # to track when a new day starts
 blacklist_tags = {"endgame"}     # exclude puzzles with these tags
 required_tags = set()            # only allow puzzles with these tags (if not empty)
 
+# Current puzzle state for hints
+current_puzzle = None
+hints_used = 0
+
 
 def filter_by_tags(puzzle):
     tags = set(puzzle.get("tags", []))
@@ -65,12 +69,68 @@ def get_random_puzzle(min_rating, max_rating):
     return random.choice(filtered)
 
 
-def print_puzzle(puzzle):
+def print_puzzle(puzzle, show_hints=False):
+    global current_puzzle, hints_used
+    current_puzzle = puzzle
+    hints_used = 0
+    
     print("\n=== Puzzle ===")
     print(f"FEN: {puzzle['fen']}")
     print(f"PGN: {puzzle['pgn']}")
     print(f"Estimated Rating: {puzzle['rating']}")
-    print(f"Tags: {', '.join(puzzle.get('tags', []))}\n")
+    print(f"Tags: {', '.join(puzzle.get('tags', []))}")
+    print(f"Moves to solve: {puzzle.get('move_count', 'Unknown')}")
+    print(f"Description: {puzzle.get('description', 'No description available')}")
+    
+    if show_hints:
+        print(f"Hint 1 (Piece): {puzzle.get('hint1', 'No hint available')}")
+        if puzzle.get('hint2'):
+            print(f"Hint 2 (Move): {puzzle.get('hint2', 'No hint available')}")
+    
+    print("\nOptions: (h)int, (s)olution, (n)ext puzzle, (m)enu")
+
+
+def show_hint():
+    global hints_used, current_puzzle
+    
+    if current_puzzle is None:
+        print("No active puzzle! Please select a puzzle first.\n")
+        return
+    
+    hints_used += 1
+    
+    # Get hints array (piece, move, piece, move, etc.)
+    hints = current_puzzle.get('hints', [])
+    
+    if hints_used <= len(hints):
+        hint = hints[hints_used - 1]
+        hint_type = "Piece" if (hints_used - 1) % 2 == 0 else "Move"
+        move_number = (hints_used + 1) // 2
+        
+        if hint_type == "Piece":
+            print(f"\n💡 Hint {hints_used} (Move {move_number}): Look for a {hint} move!")
+        else:
+            print(f"\n💡 Hint {hints_used} (Move {move_number}): Try {hint}")
+    else:
+        print("\n💡 No more hints available! Use 's' for the full solution.")
+
+
+def show_solution():
+    global current_puzzle
+    
+    if current_puzzle is None:
+        print("No active puzzle! Please select a puzzle first.\n")
+        return
+    
+    solution = current_puzzle.get('solution', ['No solution available'])
+    move_count = current_puzzle.get('move_count', len(solution))
+    
+    print(f"\n✅ Solution ({move_count} move{'s' if move_count != 1 else ''}):")
+    for i, move in enumerate(solution, 1):
+        print(f"  {i}. {move}")
+    
+    if current_puzzle.get('description'):
+        print(f"\nExplanation: {current_puzzle['description']}")
 
 
 def update_daily_scale():
@@ -106,6 +166,36 @@ def daily_puzzle():
         print_puzzle(puzzle)
 
 
+def puzzle_interaction_loop():
+    """Handle hints, solutions, and navigation for current puzzle"""
+    global current_puzzle
+    
+    if current_puzzle is None:
+        return
+    
+    while True:
+        choice = input("\nAction (h/s/n/m): ").lower().strip()
+        
+        if choice == 'h':
+            show_hint()
+        elif choice == 's':
+            show_solution()
+        elif choice == 'n':
+            # Get next puzzle with increased rating
+            global current_rating
+            current_rating += rating_step
+            puzzle = get_puzzle_near_rating(current_rating, rating_range)
+            if puzzle:
+                print_puzzle(puzzle)
+            else:
+                print("No puzzle found with current filters.\n")
+                break
+        elif choice == 'm':
+            break
+        else:
+            print("Invalid choice! Use: (h)int, (s)olution, (n)ext puzzle, (m)enu")
+
+
 def main():
     global current_rating, required_tags, blacklist_tags
 
@@ -113,26 +203,33 @@ def main():
     schedule.every(24).hours.do(daily_puzzle)
 
     while True:
+        print("\n" + "="*50)
         print("Chess Puzzle DB")
+        print("="*50)
         print("1: Get a puzzle near current rating")
-        print("2: Next puzzle (a bit harder)")
+        print("2: Get random puzzle in rating range")
         print("3: Show today's daily puzzle")
         print("4: Set required tags")
         print("5: Set blacklist tags")
+        print("6: Show current settings")
         print("0: Exit")
+        print("="*50)
         choice = input("Enter choice: ")
 
         if choice == "1":
             puzzle = get_puzzle_near_rating(current_rating, rating_range)
             if puzzle:
                 print_puzzle(puzzle)
+                puzzle_interaction_loop()
             else:
                 print("No puzzle found with current filters.\n")
         elif choice == "2":
-            current_rating += rating_step
-            puzzle = get_puzzle_near_rating(current_rating, rating_range)
+            min_rating = int(input(f"Min rating (current: {current_rating - rating_range}): ") or current_rating - rating_range)
+            max_rating = int(input(f"Max rating (current: {current_rating + rating_range}): ") or current_rating + rating_range)
+            puzzle = get_random_puzzle(min_rating, max_rating)
             if puzzle:
                 print_puzzle(puzzle)
+                puzzle_interaction_loop()
             else:
                 print("No puzzle found with current filters.\n")
         elif choice == "3":
@@ -142,14 +239,24 @@ def main():
             else:
                 print("=== Daily Puzzle ===")
                 print_puzzle(daily_puzzle_cache)
+            puzzle_interaction_loop()
         elif choice == "4":
+            print(f"Current required tags: {required_tags}")
             tags = input("Enter required tags (comma separated, empty to clear): ").strip()
             required_tags = set([t.strip() for t in tags.split(",") if t.strip()]) if tags else set()
             print(f"Required tags set to: {required_tags}")
         elif choice == "5":
+            print(f"Current blacklist tags: {blacklist_tags}")
             tags = input("Enter blacklist tags (comma separated, empty to clear): ").strip()
             blacklist_tags = set([t.strip() for t in tags.split(",") if t.strip()]) if tags else set()
             print(f"Blacklist tags set to: {blacklist_tags}")
+        elif choice == "6":
+            print(f"\nCurrent Settings:")
+            print(f"Current Rating: {current_rating}")
+            print(f"Rating Range: ±{rating_range}")
+            print(f"Required Tags: {required_tags if required_tags else 'None'}")
+            print(f"Blacklist Tags: {blacklist_tags if blacklist_tags else 'None'}")
+            print(f"Daily Rating Range: {daily_min_rating}-{daily_max_rating}")
         elif choice == "0":
             print("Exiting...")
             break

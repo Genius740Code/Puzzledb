@@ -3,18 +3,66 @@
     "fen": "r1bqkbnr/pppppppp/n7/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
     "pgn": "1. Nf3 Nc6 2. d4 d5 3. Nc3 Bg4",
     "rating": 100,
-    "tags": ["opening", "knight", "m1"]
+    "tags": ["opening", "knight", "m1"],
+    "move_count": 1,
+    "half_move_count": 2,
+    "hints": ["Knight", "Nf3"],
+    "solution": ["Nf3"],
+    "description": "Develop the knight to control the center"
   },
   {
     "fen": "rnbqkb1r/pppppppp/5n2/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
     "pgn": "1. e4 Nf6 2. Nc3 d5 3. exd5 Nxd5",
     "rating": 120,
-    "tags": ["defense", "knight", "fork"]
+    "tags": ["defense", "knight", "fork"],
+    "move_count": 1,
+    "half_move_count": 2,
+    "hints": ["Knight", "Nc3"],
+    "solution": ["Nc3"],
+    "description": "Develop knight and prepare for central control"
   },
   {
     "fen": "r1bqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
     "pgn": "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6",
     "rating": 170,
-    "tags": ["opening", "bishop"]
+    "tags": ["opening", "bishop"],
+    "move_count": 1,
+    "half_move_count": 2,
+    "hints": ["Bishop", "Bb5"],
+    "solution": ["Bb5"],
+    "description": "Spanish Opening - pin the knight"
+  },
+  {
+    "fen": "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R w KQkq - 0 1",
+    "pgn": "1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. d3 Bc5",
+    "rating": 250,
+    "tags": ["tactics", "knight", "fork", "m2"],
+    "move_count": 2,
+    "half_move_count": 4,
+    "hints": ["Knight", "Ng5", "Knight", "Nxf7"],
+    "solution": ["Ng5", "Nxf7"],
+    "description": "Knight fork attacking king and queen"
+  },
+  {
+    "fen": "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 1",
+    "pgn": "1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6",
+    "rating": 300,
+    "tags": ["tactics", "bishop", "sacrifice", "m3"],
+    "move_count": 3,
+    "half_move_count": 6,
+    "hints": ["Bishop", "Bxf7+", "Knight", "Ng5+", "Queen", "Qd5+"],
+    "solution": ["Bxf7+", "Kxf7", "Ng5+"],
+    "description": "Classical bishop sacrifice leading to king hunt"
+  },
+  {
+    "fen": "r2qkb1r/ppp2ppp/2np1n2/4p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R w KQkq - 0 1",
+    "pgn": "1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. d3 d6",
+    "rating": 400,
+    "tags": ["tactics", "queen", "fork", "m2"],
+    "move_count": 2,
+    "half_move_count": 4,
+    "hints": ["Queen", "Qd5", "Queen", "Qxf7#"],
+    "solution": ["Qd5", "Qxf7#"],
+    "description": "Queen attacks multiple pieces then delivers checkmate"
   }
 ]
